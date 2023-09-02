@@ -77,7 +77,11 @@ local options = {
     local_pattern = "",
 
     -- Legacy option, use skip_categories instead
-    skip = true
+    skip = true,
+
+    -- Manually set a scripts location. Can't be nil or it won't
+    -- be updated after reading options
+    scripts_location = "",
 }
 
 mp.options = require "mp.options"
@@ -89,10 +93,21 @@ if legacy then
     options.local_database = false
 end
 --]]
+-- Upstream marker this as unsupported
 options.local_database = false
 
+-- Set default location for scripts_location
+if options.scripts_location == nil or options.scripts_location == "" then
+    options.scripts_location = mp.find_config_file("scripts")
+end
+
+-- Make sure that paths like ~/, ~~/, etc., are expanded
+res, err = mp.command_native({"expand-path", options.scripts_location})
+-- Change path delimiter after expansion.
+options.scripts_location = string.gsub(res, [[\]], [[/]])
+
 local utils = require "mp.utils"
-scripts_dir = mp.find_config_file("scripts")
+scripts_dir = options.scripts_location
 
 local sponsorblock = utils.join_path(scripts_dir, "sponsorblock_shared/sponsorblock.py")
 local uid_path = utils.join_path(scripts_dir, "sponsorblock_shared/sponsorblock.txt")
