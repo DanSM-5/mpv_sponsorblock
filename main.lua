@@ -1,1 +1,1 @@
-sponsorblock.lua
+require 'sponsorblock'
